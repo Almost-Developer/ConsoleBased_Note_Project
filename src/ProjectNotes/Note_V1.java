@@ -52,6 +52,47 @@ public class Note_V1 {
     static List<Note> notes = new ArrayList<>();
     static String passcode = "ritu";
 
+//**************************************************************************************************************
+    // Method to save each note to a separate file
+    private static void saveNotesToFiles() {
+        File notesFolder = new File("notes");
+        if (!notesFolder.exists()) {
+        	notesFolder.mkdir();
+        }
+
+        for (Note note : notes) {
+            String filename = "notes/" + note.getTitle() + ".txt";
+            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+                out.writeObject(note);
+                System.out.println("Note saved to file: " + filename);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // Method to load notes from files and convert them into a list
+    private static List<Note> loadNotesFromFiles() {
+        List<Note> loadedNotes = new ArrayList<>();
+        File notesFolder = new File("notes");
+        File[] noteFiles = notesFolder.listFiles();
+
+        if (noteFiles != null) {
+            for (File noteFile : noteFiles) {
+                try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(noteFile))) {
+                    Note note = (Note) in.readObject();
+                    loadedNotes.add(note);
+                    System.out.println("Note loaded from file: " + noteFile.getName());
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return loadedNotes;
+    }
+//**************************************************************************************************************
+
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
@@ -71,6 +112,8 @@ public class Note_V1 {
             } else {
                 System.out.println("Access granted");
             }
+
+            notes = loadNotesFromFiles();
 
             // Main menu loop
             while (true) {
@@ -105,6 +148,7 @@ public class Note_V1 {
                         searchNote();
                         break;
                     case 7:
+                        saveNotesToFiles():
                         System.exit(0);
                     default:
                         System.out.println("Invalid choice.");
